@@ -3,6 +3,7 @@ const doc = require("pdfmake")
 const fs = require("fs-extra")
 const path = require("path")
 
+
 const printPDF = newProduct => 
     new Promise((resolve, reject) => {
 
@@ -22,8 +23,8 @@ const printPDF = newProduct =>
             width: [300, 400]
         }
 
-        detailsTable.body.push(["Product ID:", `${newProduct._id}`]["Brand:", `${newProduct.brand}`])
-        detailsTable.body.push(["Product Name:", `${newProduct.name}`]["Category:", `${newProduct.category}`])
+        detailsTable.body.push(["Product ID:", `${newProduct._id}`], ["Brand:", `${newProduct.brand}`])
+        detailsTable.body.push(["Product Name:", `${newProduct.name}`], ["Category:", `${newProduct.category}`])
         detailsTable.body.push(["Price:", `$${newProduct.price}`])
 
         const docDefinition = {
@@ -32,7 +33,7 @@ const printPDF = newProduct =>
                 { table: detailsTable }
               ]
         }
-        const fileName = `${newProduct._id} +.pdf`
+        const fileName = `${newProduct._id}.pdf`
         const pdfDocStream = docPrinter.createPdfKitDocument(docDefinition, {}); 
         pdfDocStream.pipe(
           fs.createWriteStream(path.join(__dirname, fileName))

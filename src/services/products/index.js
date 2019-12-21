@@ -5,6 +5,7 @@ const uuidv4 = require('uuid/v4');
 const router = express.Router();
 const multer = require('multer');
 const printPDF = require("./generate-pdf")
+const { Transform } = require("json2csv")
 
 const filePath = path.join(__dirname, "../../products.json")
 
@@ -14,7 +15,7 @@ const loadFromDisk = async () => {
   return JSON.parse(buffer.toString())
   
 }
-router.get('/pdf', async (req, res) => {
+/* router.post('/pdf', async (req, res) => {
 
   try {
     const products = await loadFromDisk()
@@ -36,9 +37,9 @@ router.get('/pdf', async (req, res) => {
   catch (error) {
     console.log(error)
   }
-  //res.send('Ok')
-})
-/*
+  res.send('Ok')
+}) */
+/* 
 router.get("/pdf", async (req, res) => {
   try {
   const products = await loadFromDisk()
@@ -60,7 +61,20 @@ router.get("/pdf", async (req, res) => {
 catch (error) {
   console.log(error)
 }
+}) */
+
+
+router.get("/csv", async (req, res) => {
+  const userFiles = await loadFromDisk()
+  const fields = ["_id", "name", "brand", "category", "price"]
+  const opts = { fields }
+
+  const json2csv = new Transform(opts)
+
+  await fs.createReadStream(filePath).pipe(json2csv).pipe(res)
 })
+
+
 
 router.post('/', async (req, res) => {
   var allProducts = await loadFromDisk();
@@ -71,7 +85,7 @@ router.post('/', async (req, res) => {
   addNewProduct.imageUrl = '';
   allProducts.push(addNewProduct);
   await fs.writeFile(filePath, JSON.stringify(allProducts));
-  //await printPDF(addNewProduct)
+  await printPDF(addNewProduct)
   res.send('New product add to marketplace');
 });
 
@@ -115,7 +129,7 @@ router.delete('/:id', (req, res) => {
     fs.writeFileSync(path.join(__dirname, '../../products.json'), JSON.stringify(invariantItems));
     res.send(`Item ${id} deleted`);
   } else res.status(404).send('Not Found');
-});*/
+});
 
 //FILE UPLOAD
 const imgFolder = path.join(__dirname, '../../public/imgs');
