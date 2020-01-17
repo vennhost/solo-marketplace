@@ -78,7 +78,18 @@ router.get("/csv", async (req, res) => {
 
 
 router.post('/', async (req, res) => {
-  var allProducts = await loadFromDisk();
+  try {
+  const product = await db.query(`INSERT INTO products (name, description, brand, price, category) 
+  VALUES ($1, $2, $3, $4, $5) RETURNING*`,
+  [req.body.name, req.body.description, req.body.brand, req.body.price, req.body.category])
+  console.log(product.rows)
+  res.send(product.rows)
+  }
+  catch(err) {
+    console.log(err)
+    res.send(err)
+  }
+  /* var allProducts = await loadFromDisk();
   var addNewProduct = req.body;
   addNewProduct._id = uuidv4();
   addNewProduct.createdAt = new Date();
@@ -87,11 +98,11 @@ router.post('/', async (req, res) => {
   allProducts.push(addNewProduct);
   await fs.writeFile(filePath, JSON.stringify(allProducts));
   await printPDF(addNewProduct)
-  res.send('New product add to marketplace');
+  res.send('New product add to marketplace'); */
 });
 
 router.get('/', async (req, res) => {
-  const products = await db.query("SELECT * products")
+  const products = await db.query("SELECT * FROM products")
   res.send(products.rows)
 
   /* const allProducts = await loadFromDisk();

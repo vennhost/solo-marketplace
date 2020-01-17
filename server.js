@@ -3,6 +3,8 @@ const listRoutes = require('express-list-endpoints');
 const bodyParser = require('body-parser');
 const reviewRouter = require("./src/services/reviews/");
 const productRoutes = require('./src/services/products');
+const dotenv = require("dotenv");
+dotenv.config();
 const cors = require('cors');
 const { join } = require('path');
 const port = 3003;
