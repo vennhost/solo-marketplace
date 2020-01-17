@@ -109,8 +109,39 @@ router.get('/', async (req, res) => {
   res.send(allProducts.length > 0 ? allProducts : 'There are no products'); */
 });
 
-router.put('/:id', (req, res) => {
-  const { id } = req.params;
+router.get('/:id', async (req, res) => {
+
+  try {
+    
+    const product = await db.query("SELECT * FROM products WHERE _id = $1", [req.params.id])
+    res.send(product.rows)
+  } catch (error) {
+    console.log(error)
+    res.send(error)
+  }
+
+});
+
+router.put('/:id', async (req, res) => {
+
+  const product = await db.query(`UPDATE products 
+  SET name = $1, 
+  description = $2, 
+  brand = $3, 
+  price = $4, 
+  category = $5 
+  WHERE _id = $6`, 
+  [req.body.name, req.body.description, req.body.brand, req.body.price, req.body.category, req.params.id])
+
+  if (product.rowCount === 0)
+    res.send("Not Found")
+  else
+    res.send("Update Successful")
+
+
+
+
+ /*  const { id } = req.params;
   var allProducts = loadFromDisk();
   var filteredByID = allProducts.find(item => item._id.toString() === id);
   var indexToChange = allProducts.findIndex(item => item._id.toString() === id);
@@ -132,7 +163,7 @@ router.put('/:id', (req, res) => {
     };
     fs.writeFileSync(path.join(__dirname, '../../products.json'), JSON.stringify(allProducts));
     res.send(`Item ${id} updated at ${new Date()}`);
-  }
+  } */
 });
 
 router.delete('/:id', (req, res) => {
