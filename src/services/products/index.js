@@ -1,6 +1,7 @@
 const express = require('express');
 const fs = require('fs-extra');
 const path = require('path');
+const db = require("../../../db")
 const uuidv4 = require('uuid/v4');
 const router = express.Router();
 const multer = require('multer');
@@ -90,8 +91,11 @@ router.post('/', async (req, res) => {
 });
 
 router.get('/', async (req, res) => {
-  const allProducts = await loadFromDisk();
-  res.send(allProducts.length > 0 ? allProducts : 'There are no products');
+  const products = await db.query("SELECT * products")
+  res.send(products.rows)
+
+  /* const allProducts = await loadFromDisk();
+  res.send(allProducts.length > 0 ? allProducts : 'There are no products'); */
 });
 
 router.put('/:id', (req, res) => {
