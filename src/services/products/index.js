@@ -114,7 +114,12 @@ router.get('/:id', async (req, res) => {
   try {
     
     const product = await db.query("SELECT * FROM products WHERE _id = $1", [req.params.id])
-    res.send(product.rows)
+
+    if (product.rowCount === 0)
+      res.status(404).send("Not Found")
+
+    else
+      res.send(product.rows)
   } catch (error) {
     console.log(error)
     res.send(error)
@@ -166,15 +171,27 @@ router.put('/:id', async (req, res) => {
   } */
 });
 
-router.delete('/:id', (req, res) => {
-  const { id } = req.params;
+router.delete('/:id', async (req, res) => {
+
+  const product = await db.query("DELETE FROM products WHERE _id = $1", [req.params.id])
+
+  if (product.rowCount === 0)
+    res.status(404).send("Not found")
+  
+  else
+    res.send("DELETED")
+
+
+
+
+  /* const { id } = req.params;
   const allProducts = loadFromDisk();
   var filteredByID = allProducts.find(item => item._id.toString() === id);
   if (filteredByID) {
     var invariantItems = allProducts.filter(item => item._id.toString() !== id);
     fs.writeFileSync(path.join(__dirname, '../../products.json'), JSON.stringify(invariantItems));
     res.send(`Item ${id} deleted`);
-  } else res.status(404).send('Not Found');
+  } else res.status(404).send('Not Found'); */
 });
 
 //FILE UPLOAD
@@ -206,6 +223,24 @@ router.post('/upload/:id', upload.single('prod_picture'), (req, res) => {
     fs.writeFileSync('./src/products.json', JSON.stringify(allProducts));
     res.send('Uploaded');
   }
+});
+
+
+//Reviews EndPoint 
+
+router.post('/products/:id/reviews/', async (req, res) => {
+  try {
+  const review = await db.query(`INSERT INTO reviews (productId, comment, rate) 
+  VALUES ($1, $2, $3) RETURNING*`,
+  [req.params.id, req.body.comment, req.body.rate, ])
+  console.log(product.rows)
+  res.send(review.rows)
+  }
+  catch(err) {
+    console.log(err)
+    res.send(err)
+  }
+ 
 });
 
 module.exports = router;
